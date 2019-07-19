@@ -1,0 +1,96 @@
+public class Field {
+	private int size,
+				numberOfMines,
+				numberOfUnexposedCells;
+	private Cell[][] grid;
+
+	public Field(int size, int numberOfMines) {...}
+	public void initialize() {...}
+
+	// Returns null if row or col is out of bounds
+	public Cell getCell(int row, int col) {
+		if (0 <= row && row < size && 0 <= col && col < size)
+			return grid[row][col];
+		else return null;
+	}
+
+	private void placeMines() {
+		List<Cell> allCells = new LinkedList<>(size * size);
+		for (Cell[] row : grid) {
+			for (Cell cell : row) {
+				allCells.add(cell);
+			}
+		}
+		for (int i = 0; i < numberOfMines; i++) {
+			Cell mineCell = allCells.remove(ThreadLocalRandom.current().nextInt(0, allCells.size()));
+			mineCell.putMine();
+
+			// increment numbers of neighboring cells if don't have mines
+			for (Cell neighbor: mineCell.neighbors()) {
+				if (!neighbor.isMine()) {
+					neighbor.incrementNumber();
+				}
+			}
+		}
+	}
+
+	private void expandAdjCells(Cell origin) {
+		// use BFS
+		Deque<Cell> queue = new ArrayDeque<>();
+		queue.addLast(origin);
+		List<Cell> numberCells = new ArrayList<>();
+
+		while (!queue.isEmpty()) {
+			Cell cell = queue.removeFirst();
+			if (cell.isNumberCell()) {
+				numberCells.add(cell);
+			} else {
+				for (Cell neighbor : cell.neighbors()) {
+					if (neighbor.isBlank() && !neighbor.isExposed()) {
+						queue.addLast(neighbor);
+					}
+				}
+				neighbor.expose();
+			}
+		}
+		for (Cell numberCell : numberCells)
+			numberCell.expose():
+	}
+}
+
+public class Cell {
+	private boolean flagged = false, 
+					exposed = false;
+	private int number = 0, 
+				row, 
+				column;
+	public static final Cell[] DIRECTIONS = {
+		new Cell(-1, -1),
+		new Cell(-1,  0),
+		new Cell(-1,  1),
+		new Cell( 0, -1),
+		new Cell( 0,  1),
+		new Cell( 1, -1),
+		new Cell( 1,  0),
+		new Cell( 1,  1)
+	};
+
+	public Cell(int row, int col) {...}
+	public void putMine() {number = Integer.MAX_VALUE;}
+	public void flag() {flagged = true;}
+	public void unflag() {flagged = false;}
+	public boolean hasMine() {number == Integer.MAX_VALUE;}
+	public void expose() {...}
+	public void incrementNumber() {number++;}
+	public int row() {return row;}
+	public int col() {return column;}
+
+	public List<Cell> neighbors() {
+		List<Cell> neighbors = new ArrayList<>();
+		for (Cell direction : DIRECTIONS) {
+			Cell neighbor = Game.instance().getCell(row + direction.row(), column + direction.col());
+			if (neighbor != null) neighbours.add(neighbor);
+		}
+		return neighbors;
+	}
+}
