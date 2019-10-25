@@ -14,12 +14,8 @@ public class LineIntersection {
     }
 
     static Point getIntersection(Point start1, Point end1, Point start2, Point end2) {
-        if (end1.x < start1.x) {
-            swap(end1, start1);
-        }
-        if (end2.x < start2.x) {
-            swap(end2, start2);
-        }
+        if (end1.x < start1.x) swap(end1, start1);
+        if (end2.x < start2.x) swap(end2, start2);
         if (start2.x < start1.x) {
             swap(start2, start1);
             swap(end2, end1);
@@ -27,32 +23,30 @@ public class LineIntersection {
 
         Line line1 = new Line(start1, end1), 
              line2 = new Line(start2, end2);
-        if (line1.equals(line2)) {
-            return anOverlappingPoint(start1, end1, start2, end2);
-        }
-        if (!line1.isParallel(line2)) {
-            Point p = line1.getIntersection(line2);
-            if (p.isOnLineSegment(start1, end1) && p.isOnLineSegment(start2, end2)) {
-                return p;
+        if (line1.slope == line2.slope) {   // if lines are parallel
+            // they only intercept only if they are the same line and segments overlap
+            if (line1.yIntercept == line2.yIntercept && start2.isOnLineSegment(start1, end1)) {
+                return start2;
             }
+            return null; 
+        }
+
+        // if we get here, we know that lines are not parallel so they must intersect
+        Point p = line1.getIntersection(line2);
+        if (p.isOnLineSegment(start1, end1) && p.isOnLineSegment(start2, end2)) {
+            return p;
         }
         return null;
     }
 
-    private static void swap(Point p1, Point p2) {
-        Point temp = p1;
-        p1 = p2;
-        p2 = temp;
+    private static void swap(Point point1, Point point2) {
+        Point temp = new Point(point1.x, point1.y); // temp = point1
+        point1.x = point2.x;
+        point1.y = point2.y;
+        point2.x = temp.x;
+        point2.y = temp.y;
     }
 
-    private static Point anOverlappingPoint(Point start1, Point end1, Point start2, Point end2) {
-        // We now all 4 points are on the same line, so we can just compare the x-coordiantes.
-        if (start1.x <= start2.x && start2.x <= end1.x) {
-            return start2;
-        } else {    // If line segments do not overlap, return null.
-            return null;
-        }
-    }
 
     static class Line {
         double slope, yIntercept;
@@ -61,18 +55,7 @@ public class LineIntersection {
             double deltaY = end.y - start.y, 
                    deltaX = end.x - start.x;
             slope = deltaY / deltaX;
-
-            // y = mx + b
-            // y - mx = b
-            yIntercept = start.y - slope * start.x;
-        }
-
-        boolean isParallel(Line other) {
-            return slope == other.slope;
-        }
-
-        boolean equals(Line other) {
-            return isParallel(other) && yIntercept == other.yIntercept;
+            yIntercept = start.y - slope * start.x; // y - mx = b
         }
 
         Point getIntersection(Line other) {
@@ -80,16 +63,12 @@ public class LineIntersection {
                mx - nx = c - b
                x(m - n) = c - b
                x = (c - b)/(m - n) */
-
-            // If slopes are the same, lines are parallel -- no intersection
-            if (slope == other.slope) {
-                return null;
-            }
             double x = (other.yIntercept - yIntercept) / (slope - other.slope);
             double y = slope * x - yIntercept;
             return new Point(x,y);
         }
     }
+
 
     static class Point {
         double x, y;
@@ -100,7 +79,14 @@ public class LineIntersection {
         }
 
         boolean isOnLineSegment(Point start, Point end) {
-            return start.x <= x && x <= end.x && start.y <= y && y <= end.y;
+            return isBetween(start.x, x, end.x) && isBetween(start.y, y, end.y);
+        }
+
+        private boolean isBetween(double start, double mid, double end) {
+            if (end < start) {
+                return end <= mid && mid <= start;
+            }
+            return start <= mid && mid <= end;
         }
     }
 }
