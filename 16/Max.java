@@ -12,7 +12,7 @@ public class Max {
     static int getMsb(int i) {
         /* When getting a bit it is a good idea to reduce the target bit to the least significant bit,
            rather than creating a bit mask which targets that bit directly. */
-        return (i >>> (Integer.BYTES * 8 - 1)) & 1;
+        return (i >>> (Integer.SIZE - 1)) & 1;
     }
 
     // todo: What if a - b > Integer.MAX_VALUE?
