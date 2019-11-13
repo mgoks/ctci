@@ -1,3 +1,5 @@
+import java.lang.IllegalArgumentException;
+
 public class IntegerToWords {
 
     private static final String[] FIRST_TWENTY_NUMBERS = {
@@ -32,7 +34,7 @@ public class IntegerToWords {
 
     static String hundredToWords(int i) {
         if (i >= 1000) {
-            System.err.println("hundredToWords(int) does not take argument >= 1000.");
+            throw new IllegalArgumentException("hundredToWords(int) does not take argument >= 1000.");
         }
 
         String words = "";
