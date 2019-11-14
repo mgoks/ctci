@@ -13,9 +13,7 @@ public class SubtractMultiplyDivide {
     }
 
     static int multiply(int a, int b) {
-        //int pos_a = a;  // positive a
-        int pos_b = b;
-        //if (a < 0) pos_a = negate(a);
+        int pos_b = b;  // positive b
         if (b < 0) pos_b = negate(b);
         
         int product = 0;
@@ -29,7 +27,7 @@ public class SubtractMultiplyDivide {
         if (b == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        int pos_a = a;  // positive a
+        int pos_a = a;  
         int pos_b = b;
         if (a < 0) pos_a = negate(a);
         if (b < 0) pos_b = negate(b);
