@@ -56,7 +56,11 @@ public class SubtractMultiplyDivide {
         return neg_a;
     }
 
-    // O(log(i))
+    /* O(log^2 i)
+    In the while loop, the algorithm perform O(log i) iterations and 
+    the longest round takes O(log i) work. Therefore, as an upper bound,
+    this algorithm takes O(log^2 i) time. In this case, the upper bound 
+    happens to be the true time. */
     private static int negate(int i) {
         int neg_i = 0;
         final int direction = i > 0? -1 : 1;
