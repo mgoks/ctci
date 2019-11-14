@@ -33,9 +33,10 @@ public class SubtractMultiplyDivide {
         if (b < 0) pos_b = negate(b);
 
         int quotient = 0;
-        while (pos_a >= pos_b) {
+        int product = 0;    // = quotient * pos_b
+        while (product + pos_b <= pos_a) {
             quotient++;
-            pos_a = subtract(pos_a, pos_b);
+            product += pos_b;
         }
         return sign(a) != sign(b)? negate(quotient) : quotient;
     }
