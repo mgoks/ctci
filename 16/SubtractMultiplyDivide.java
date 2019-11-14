@@ -44,7 +44,8 @@ public class SubtractMultiplyDivide {
         return a < 0? -1 : 1;
     }
 
-    private static int negate(int a) {
+    // O(a)
+    private static int negateSlow(int a) {
         if (a == 0) return 0;
         int unit = a > 0? -1 : 1;
         int neg_a = 0;
@@ -53,5 +54,24 @@ public class SubtractMultiplyDivide {
             a += unit;
         }
         return neg_a;
+    }
+
+    // O(log(i))
+    private static int negate(int i) {
+        int neg_i = 0;
+        final int direction = i > 0? -1 : 1;
+        int delta = direction;
+        
+        while (i != 0) {
+            boolean diffSigns = (i > 0) != (i + delta > 0);
+            // if delta is too large, reset it
+            if (diffSigns && (i + delta != 0)) {
+                delta = direction;
+            }
+            neg_i += delta;
+            i += delta;
+            delta += delta;
+        }
+        return neg_i;
     }
 }
