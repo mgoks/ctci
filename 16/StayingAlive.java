@@ -20,11 +20,12 @@ public class StayingAlive {
         for (Person p : persons) {
             System.out.println(p);
         }
-        System.out.format("Most people are alive on year %d%n", 
-                          getYearMostAliveBruteForce(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR));
+        System.out.format("Most people are alive on year %d (brute force), %d (sort)%n", 
+                          getYearMostAliveBruteForce(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR),
+                          getYearMostAliveSort(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR));
     }
 
-    // O(n) time (since number of years is always 100), O(n) space 
+    // O(100n) = O(n) time (since we assume number of years is 100), O(n) space 
     static int getYearMostAliveBruteForce(Person[] persons, int minYear, int maxYear) {
         if (persons == null || persons.length == 0) return 0;
         
@@ -51,6 +52,47 @@ public class StayingAlive {
             }
         }
         return maxAliveYear;
+    }
+
+    /* O(n logn) time in the length of persons
+       Worse than brute force if log(n) > 100, i.e. persons is large */
+    static int getYearMostAliveSort(Person[] persons, int minYear, int maxYear) {
+        if (persons == null) return 0;
+
+        int[] births = getSortedYears(persons, true);
+        int[] deaths = getSortedYears(persons, false);
+
+        int i = 0; // index for births
+        int j = 0; // index for deaths
+        int currentAlive = 0;
+        int maxAlive = currentAlive;
+        int maxAliveYear = 0;
+
+        /* We can stop once i == births.length, since there will be no new births, 
+           thus no new maximum, after that. */
+        while (i < births.length && j < deaths.length) {
+            if (births[i] <= deaths[j]) {
+                currentAlive++;
+                if (currentAlive > maxAlive) {
+                    maxAlive = currentAlive;
+                    maxAliveYear = births[i];
+                }
+                i++;
+            } else {
+                currentAlive--;
+                j++;
+            }
+        }
+        return maxAliveYear;
+    }
+
+    private static int[] getSortedYears(Person[] persons, boolean sortByBirthYear) {
+        int[] years = new int[persons.length];
+        for (int i = 0; i < persons.length; i++) {
+            years[i] = sortByBirthYear? persons[i].birthYear : persons[i].deathYear;
+        }
+        Arrays.sort(years);
+        return years;
     }
 
     static class Person {
