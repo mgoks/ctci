@@ -20,9 +20,10 @@ public class StayingAlive {
         for (Person p : persons) {
             System.out.println(p);
         }
-        System.out.format("Most people are alive on year %d (brute force), %d (sort)%n", 
+        System.out.format("Most people are alive on year %d (brute force), %d (sort), %d (no sort)%n", 
                           getYearMostAliveBruteForce(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR),
-                          getYearMostAliveSort(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR));
+                          getYearMostAliveSort(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR),
+                          getYearMostAliveNoSort(persons, MIN_BIRTH_YEAR, MAX_BIRTH_YEAR));
     }
 
     // O(100n) = O(n) time (since we assume number of years is 100), O(n) space 
@@ -81,6 +82,31 @@ public class StayingAlive {
             } else {
                 currentAlive--;
                 j++;
+            }
+        }
+        return maxAliveYear;
+    }
+
+    static int getYearMostAliveNoSort(Person[] persons, int minYear, int maxYear) {
+        if (persons == null || persons.length == 0) return 0;
+
+        int[] delta = new int[maxYear - minYear + 1]; // magnitude of population change at year i
+        for (Person person : persons) {
+            delta[person.birthYear - minYear]++;
+            if (person.deathYear < maxYear) {
+                delta[person.deathYear - minYear + 1]--;
+            }
+        }
+
+        // walk through delta to find the year when most people were alive
+        int maxAlive = 0;
+        int maxAliveYear = 0;
+        int currentAlive = 0;
+        for (int i = 0; i < delta.length; i++) {
+            currentAlive += delta[i];
+            if (currentAlive > maxAlive) {
+                maxAlive = currentAlive;
+                maxAliveYear = i + minYear;
             }
         }
         return maxAliveYear;
