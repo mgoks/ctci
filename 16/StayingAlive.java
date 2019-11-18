@@ -3,6 +3,7 @@ import java.util.Arrays;
 
 public class StayingAlive {
     public static void main(String[] args) {
+        // Enter number of people as args[0]
         int n = Integer.parseInt(args[0]);  // number of people
         Person[] persons = new Person[n];
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -14,43 +15,32 @@ public class StayingAlive {
         for (Person p : persons) {
             System.out.println(p);
         }
-        System.out.format("Most people are alive on year %d%n", getYearMostAlive(persons));
+        System.out.format("Most people are alive on year %d%n", getYearMostAliveBruteForce(persons));
     }
 
-    static int getYearMostAlive(Person[] persons) {
+    // O(n) time (since number of years is always 100), O(n) space 
+    static int getYearMostAliveBruteForce(Person[] persons) {
         if (persons == null || persons.length == 0) return 0;
         
-        int[] birthYears = new int[persons.length];
-        int[] deathYears = new int[persons.length];
-        for (int i = 0; i < persons.length; i++) {
-            birthYears[i] = persons[i].birthYear;
-            deathYears[i] = persons[i].deathYear;
-        }
-        Arrays.sort(birthYears);
-        Arrays.sort(deathYears);
-
-        int n = 0; // number of people alive currently
-        int max_n = n;    // maximum number of people alive at any given time
-        int yearMostAlive = 0;    // the year when most people are alive
-
-        int i = 0;
-        int j = 0;
-        while (i < birthYears.length || j < deathYears.length) {
-            while (i < birthYears.length && birthYears[i] <= deathYears[j]) {
-                n++;
-                if (n > max_n) {
-                    n = max_n;
-                    yearMostAlive = birthYears[i]; // current year
-                }
-                i++;
-            }
-            while (j < deathYears.length && ((i < birthYears.length && deathYears[j] <= birthYears[i]) || 
-                                             (i == birthYears.length && deathYears[j] == birthYears[i-1]))) {
-                n--;
-                j--;
+        // assuming all people are born between 1900 and 2000
+        // create an array of size 101 store the number of people alive at each year
+        int[] n = new int[101]; // number of people alive in year i + 1900
+        for (Person p : persons) {
+            for (int i = p.birthYear; i <= p.deathYear; i++) {
+                n[i-1900]++;
             }
         }
-        return yearMostAlive;
+
+        // find the year with max number of people alive
+        int maxAliveYear = 0;
+        int n_max = 0;
+        for (int y = 0; y < n.length; y++) {
+            if (n[y] > n_max) {
+                n_max = n[y];
+                maxAliveYear = y + 1900;
+            }
+        }
+        return maxAliveYear;
     }
 
     static class Person {
@@ -64,7 +54,7 @@ public class StayingAlive {
 
         @Override
         public String toString() {
-            return String.format("%d - %d%n", birthYear, deathYear);
+            return String.format("%d - %d", birthYear, deathYear);
         }
     }
 }
