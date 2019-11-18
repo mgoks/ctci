@@ -25,19 +25,19 @@ public class StayingAlive {
     }
 
     // O(n) time (since number of years is always 100), O(n) space 
-    static int getYearMostAliveBruteForce(Person[] persons, int minBirthYear, int maxBirthYear) {
+    static int getYearMostAliveBruteForce(Person[] persons, int minYear, int maxYear) {
         if (persons == null || persons.length == 0) return 0;
         
         // assuming all people are born between 1900 and 2000
-        // create an array of size maxDeathYear - minBirthYear + 1 store the number of people alive each year
-        int maxDeathYear = 0;
-        for (Person person : persons) {
-            maxDeathYear = Math.max(person.deathYear, maxDeathYear);
-        }
-        int[] numAlive = new int[maxDeathYear - minBirthYear + 1]; // number of people alive in year i + 1900
+        // create an array of size maxYear - minYear + 1 store the number of people alive each year
+        // since we are assuming all births to be between 1900 and 2000, number of people alive on
+        // years after 2000 will not be higher than years before 2000
+        int[] numAlive = new int[maxYear - minYear + 1]; // number of people alive in year i + 1900
         for (Person person : persons) {
             for (int year = person.birthYear; year <= person.deathYear; year++) {
-                numAlive[year - minBirthYear]++;
+                if (year - minYear < numAlive.length) {
+                    numAlive[year - minYear]++;
+                }
             }
         }
 
@@ -47,7 +47,7 @@ public class StayingAlive {
         for (int y = 0; y < numAlive.length; y++) {
             if (numAlive[y] > n_max) {
                 n_max = numAlive[y];
-                maxAliveYear = y + minBirthYear;
+                maxAliveYear = y + minYear;
             }
         }
         return maxAliveYear;
