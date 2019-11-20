@@ -20,8 +20,7 @@ public class BisectSquares {
     // Returns Line that cuts both squares in half
     static Line calculateHalvingLine(Square square1, Square square2) {
         if (square1 == null || square2 == null) {
-            System.err.println("Either both or one of the squares is null. Can't calculate halving line.");
-            return null;
+            throw new IllegalArgumentException("Either both or one of the squares is null. Can't calculate halving line.");
         }
         Point center1 = square1.getCenterPoint();
         Point center2 = square2.getCenterPoint();
@@ -73,25 +72,23 @@ public class BisectSquares {
         double x_intercept;
 
         public Line(Point point1, Point point2) {
-            double delta_y = point2.y - point1.y;
             double delta_x = point2.x - point1.x;
-            if (delta_x == 0.0) {   // line is parallel to y-axis
-                slope = Double.NaN;
-                x_intercept = point1.x;
+            double delta_y = point2.y - point1.y;
+            if (delta_x == 0.0 && delta_y == 0.0) { // same point
+                slope = 0.0;                        // any line passing through this point will do
+                y_intercept = point1.y;
+            } else if (delta_x == 0.0) {    // line parallel to y-axis
+                slope = Double.NaN;         // slope is undefined
+                x_intercept = point1.x; 
             } else {
                 slope = delta_y / delta_x;
                 y_intercept = point1.y - slope * point1.x;
             }
-
-        }
-
-        boolean isParallelToYAxis() {
-            return Double.isNaN(slope);
         }
 
         @Override
         public String toString() {
-            if (isParallelToYAxis()) {
+            if (Double.isNaN(slope)) {
                 return "x = " + x_intercept;
             } else {
                 return String.format("y = %fx + %f", slope, y_intercept);
