@@ -3,6 +3,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BisectSquares {
     public static void main(String[] args) {
+        // to generate squares randomly
         // double min = Double.parseDouble(args[0]);
         // double max = Double.parseDouble(args[1]);
         // Square square1 = createSquare(min, max);
@@ -22,10 +23,9 @@ public class BisectSquares {
         if (square1 == null || square2 == null) {
             throw new IllegalArgumentException("Either both or one of the squares is null. Can't calculate halving line.");
         }
-        Point center1 = square1.getCenterPoint();
-        Point center2 = square2.getCenterPoint();
-        Line halvingLine = new Line(center1, center2);
-        return halvingLine;
+        /* get the line that connects center points for squares
+         * this is the line that halves them */
+        return new Line(square1.getCenterPoint(), square2.getCenterPoint());
     }
 
     private static Square createSquare(double min, double max) {
