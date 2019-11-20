@@ -109,10 +109,6 @@ public class BisectSquares {
             this.y = y;
         }
 
-        public boolean equals(Point other) {
-            return x == other.x && y == other.y;
-        }
-
         @Override
         public String toString() {
             return String.format("(%f, %f)", x, y);
