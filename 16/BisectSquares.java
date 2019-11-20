@@ -29,6 +29,18 @@ public class BisectSquares {
         return halvingLine;
     }
 
+    private static Square createSquare(double min, double max) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        double x1 = random.nextDouble(min, max);
+        double x2 = random.nextDouble(x1, max);
+        double y1 = random.nextDouble(min, max);
+        double y2 = random.nextDouble(y1, max);
+        return new Square(x1, x2, y1, y2);
+    }
+
+
+    // Helper classes
+
     static class Square {
         /* We assume edges of a square are parallel to y and x-axes, 
          * so we can represent a square with four lines parallel to axes. */
@@ -54,14 +66,6 @@ public class BisectSquares {
         }
     }
 
-    private static Square createSquare(double min, double max) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        double x1 = random.nextDouble(min, max);
-        double x2 = random.nextDouble(x1, max);
-        double y1 = random.nextDouble(min, max);
-        double y2 = random.nextDouble(y1, max);
-        return new Square(x1, x2, y1, y2);
-    }
 
     static class Line {
         double slope;
@@ -94,6 +98,7 @@ public class BisectSquares {
             }
         }
     }
+
 
     static class Point {
         double x;
