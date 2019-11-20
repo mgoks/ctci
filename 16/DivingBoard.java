@@ -17,8 +17,7 @@ public class DivingBoard {
         // edge cases
         if (k < 1) return new int[0];
         if (shorter == longer) {
-            int[] lengths = new int[1];
-            lengths[0] = shorter * k;
+            int[] lengths = {shorter * k};
             return lengths;
         }
 
