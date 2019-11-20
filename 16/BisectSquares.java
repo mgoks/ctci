@@ -23,7 +23,7 @@ public class BisectSquares {
         if (square1 == null || square2 == null) {
             throw new IllegalArgumentException("Either both or one of the squares is null. Can't calculate halving line.");
         }
-        /* get the line that connects center points for squares
+        /* get the line that connects center points of squares
          * this is the line that halves them */
         return new Line(square1.getCenterPoint(), square2.getCenterPoint());
     }
