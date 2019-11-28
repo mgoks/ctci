@@ -20,7 +20,7 @@ public class MaxSubarraySum {
         int maxInt = Integer.MIN_VALUE;
         boolean allIntegersAreNegative = true;
 
-        /* Observe the a sequence with a sum < 0 can never
+        /* Observe that a sequence with a sum < 0 can never
          * start or end a subarray, but can be in the middle
          * of one.                                        */
         for (int i : array) {
