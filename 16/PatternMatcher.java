@@ -18,21 +18,43 @@ public class PatternMatcher {
         int maxMainSize = size / mainCharCount;
 
         for (int mainSize = 0; mainSize <= maxMainSize; mainSize++) {   
-            String main = value.substring(0, mainSize);         
-            int remainingLength = size - mainSize * mainCharCount;       
-            // If the number of characters left for each b doesn't have any decimals
-            // e.g. b cannot have length 3.14
+            int remainingLength = size - mainSize * mainCharCount;
             if (altCharCount == 0 || remainingLength % altCharCount == 0) {
                 int altSize = altCharCount == 0? 0 : remainingLength / altCharCount;
-                // start index of the first alt string in value
-                int altStartIndex = pattern.indexOf(altChar) * mainSize;
-                String alt = altCharCount == 0? "" : value.substring(altStartIndex, altStartIndex + altSize);
-                String cand = buildFromPattern(pattern, main, alt);
-                if (cand.equals(value))
+                int firstAltIndex = pattern.indexOf(altChar) * mainSize;
+                if (matches(pattern, value, mainSize, altSize, firstAltIndex)) {
                     return true;
-            } 
+                }
+            }
         }
         return false;
+    }
+
+    /**
+     * Iterates through pattern starting at character c at index 1. If c is the main character, i.e. the first
+     * character of pattern, it compares that substring of value to main; else, compares it to alt without 
+     * actually creating the substrings.
+     */
+    private static boolean matches(String pattern, String value, int mainSize, int altSize, int firstAltIndex) {
+        int valueIndex = mainSize;
+        for (int i = 1; i < pattern.length(); i++) {
+            int size = pattern.charAt(i) == pattern.charAt(0)? mainSize : altSize;
+            int start1 = pattern.charAt(i) == pattern.charAt(0)? 0 : firstAltIndex;
+            if (!equals(value, start1, valueIndex, size)) 
+                return false;
+            
+            valueIndex += size;
+        }
+        return true;
+    }
+
+    /* Checks if value.substring(i, i + size) equals value.substring(j, j + size) without creating the substrings */
+    private static boolean equals(String value, int start1, int start2, int size) {
+        for (int i = 0; i < size; i++) {
+            if (value.charAt(start1 + i) != value.charAt(start2 + i))
+                return false;
+        }
+        return true;
     }
 
     private static String buildFromPattern(String pattern, String main, String alt) {
