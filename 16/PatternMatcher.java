@@ -5,25 +5,32 @@ public class PatternMatcher {
         System.out.println(doesMatch(args[0], args[1]));
     }
 
-    // O(n^4) time
+    // O(n^2) time
     static boolean doesMatch(String pattern, String value) {
         if (pattern.isEmpty()) 
             return value.isEmpty();
 
-        int size = value.length();
+        int size = value.length();                              
+        char mainChar = pattern.charAt(0);
+        char altChar = mainChar == 'a'? 'b' : 'a';
+        int mainCharCount = countChar(mainChar, pattern);         
+        int altCharCount = pattern.length() - mainCharCount;
+        int maxMainSize = size / mainCharCount;
 
-        // Let main denote the first character in pattern 
-        // and alt, the other one
-        for (int mainSize = 0; mainSize < size; mainSize++) {
-            String main = value.substring(0, mainSize);
-            for (int altStart = mainSize; altStart <= size; altStart++) {
-                for (int altEnd = altStart; altEnd <= size; altEnd++) {
-                    String alt = value.substring(altStart, altEnd);
-                    String cand = buildFromPattern(pattern, main, alt);
-                    if (cand.equals(value))
-                        return true;
-                }
-            }
+        for (int mainSize = 0; mainSize <= maxMainSize; mainSize++) {   
+            String main = value.substring(0, mainSize);         
+            int remainingLength = size - mainSize * mainCharCount;       
+            // If the number of characters left for each b doesn't have any decimals
+            // e.g. b cannot have length 3.14
+            if (altCharCount == 0 || remainingLength % altCharCount == 0) {
+                int altSize = altCharCount == 0? 0 : remainingLength / altCharCount;
+                // start index of the first alt string in value
+                int altStartIndex = pattern.indexOf(altChar) * mainSize;
+                String alt = altCharCount == 0? "" : value.substring(altStartIndex, altStartIndex + altSize);
+                String cand = buildFromPattern(pattern, main, alt);
+                if (cand.equals(value))
+                    return true;
+            } 
         }
         return false;
     }
@@ -36,5 +43,14 @@ public class PatternMatcher {
             else s.append(alt);
         }
         return s.toString();
+    }
+
+    private static int countChar(char c, String string) {
+        int count = 0;
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == c)
+                count++;
+        }
+        return count;
     }
 }
