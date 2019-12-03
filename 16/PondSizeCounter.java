@@ -1,18 +1,11 @@
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Queue;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 
 public class PondSizeCounter {
 
     private static final int WATER = 0;
-    
-    private static final int[][] DIRECTIONS = {
-        {-1, -1}, {-1,  0}, {-1,  1},
-        { 0, -1},           { 0,  1},
-        { 1, -1}, { 1,  0}, { 1,  1}
-    };
+    private static final int COUNTED = -1;
 
     public static void main(String[] args) {
         int rowLength = Integer.parseInt(args[0]);
@@ -42,65 +35,37 @@ public class PondSizeCounter {
         System.out.println(pondSizeCounter.computePondSizes(map));
     }
 
-    // O(nm) in the lengths of map
+    // Using depth-first search
+    // O(nm) time and O(1) space in the lengths of map
     List<Integer> computePondSizes(int[][] map) {
-        if (map == null || map.length == 0 || map[0].length == 0)
+        if (map == null)
             return null;
 
         List<Integer> pondSizes = new ArrayList<>();
-        boolean[][] counted = new boolean[map.length][map[0].length];
         for (int row = 0; row < map.length; row++) {
             for (int col = 0; col < map[row].length; col++) {
-                if (map[row][col] == WATER && !counted[row][col]) {
-                    pondSizes.add(computePondSize(map, counted, row, col));
+                if (map[row][col] == WATER) {
+                    pondSizes.add(computePondSize(map, row, col));
                 }
             }
         }
         return pondSizes;
     }
 
-    private int computePondSize(int[][] map, boolean[][] counted, int row, int column) {
-        Queue<Location> queue = new ArrayDeque<>();
-        queue.add(new Location(row, column));
-        int pondSize = 0;
-        int rowLength = map.length;
-        int colLength = map[0].length;
+    private int computePondSize(int[][] map, int row, int column) {
+        /* if out of bounds, already counted, or is not water */
+        if (row < 0 || column < 0 || row >= map.length || column >= map[row].length || 
+            map[row][column] != WATER) {    // is not water or already counted
+            return 0;
+        }
 
-        while (!queue.isEmpty()) {
-            Location node = queue.remove();
-            for (Location neighbor : node.getNeighbors(rowLength, colLength)) {
-                if (map[neighbor.row][neighbor.column] == WATER && 
-                    !counted[neighbor.row][neighbor.column]) {
-                    queue.add(neighbor);
-                }
+        int pondSize = 1;
+        map[row][column] = COUNTED;
+        for (int r = -1; r <= 1; r++) {
+            for (int c = -1; c <= 1; c++) {
+                pondSize += computePondSize(map, row + r, column + c);
             }
-            pondSize++;
-            counted[node.row][node.column] = true;
         }
         return pondSize;
     }
-
-
-    class Location {
-        int row;
-        int column;
-
-        public Location(int row, int col) {
-            this.row = row;
-            column = col;
-        }
-
-        List<Location> getNeighbors(int rowLength, int colLength) {
-            List<Location> neighbors = new ArrayList<>();
-            for (int[] direction : DIRECTIONS) {
-                int row = this.row + direction[0];
-                int col = this.column + direction[1];
-                if (0 <= row && row < rowLength && 0 <= col && col < colLength) {
-                    neighbors.add(new Location(row, col));
-                }
-            }
-            return neighbors;
-        }
-    }
-
 }
