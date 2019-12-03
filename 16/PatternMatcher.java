@@ -1,5 +1,3 @@
-import java.lang.StringBuilder;
-
 public class PatternMatcher {
     public static void main(String[] args) {
         System.out.println(doesMatch(args[0], args[1]));
@@ -23,6 +21,8 @@ public class PatternMatcher {
                 int altSize = altCharCount == 0? 0 : remainingLength / altCharCount;
                 int firstAltIndex = pattern.indexOf(altChar) * mainSize;
                 if (matches(pattern, value, mainSize, altSize, firstAltIndex)) {
+                    System.err.format("main = '%s', alt = '%s'%n", value.substring(0, mainSize), 
+                        value.substring(firstAltIndex, firstAltIndex + altSize));
                     return true;
                 }
             }
@@ -42,29 +42,20 @@ public class PatternMatcher {
             int start1 = pattern.charAt(i) == pattern.charAt(0)? 0 : firstAltIndex;
             if (!equals(value, start1, valueIndex, size)) 
                 return false;
-            
+
             valueIndex += size;
         }
         return true;
     }
 
-    /* Checks if value.substring(i, i + size) equals value.substring(j, j + size) without creating the substrings */
-    private static boolean equals(String value, int start1, int start2, int size) {
+    /* Checks if value.substring(start1, start1 + size) equals value.substring(start2, start2 + size) 
+     * without creating the substrings */
+    private static boolean equals(String string, int start1, int start2, int size) {
         for (int i = 0; i < size; i++) {
-            if (value.charAt(start1 + i) != value.charAt(start2 + i))
+            if (string.charAt(start1 + i) != string.charAt(start2 + i))
                 return false;
         }
         return true;
-    }
-
-    private static String buildFromPattern(String pattern, String main, String alt) {
-        StringBuilder s = new StringBuilder();
-        char first = pattern.charAt(0);
-        for (char c : pattern.toCharArray()) {
-            if (c == first) s.append(main);
-            else s.append(alt);
-        }
-        return s.toString();
     }
 
     private static int countChar(char c, String string) {
