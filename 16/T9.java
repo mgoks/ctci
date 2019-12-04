@@ -26,7 +26,7 @@ public class T9 {
         System.out.println(t9.getWords(args[0], validWords));
     }
 
-    // O(4^n) time, O(log(4^n)) space complexity
+    // O(4^n) time and  space complexity
     List<String> getWords(String digits, Set<String> validWords) {
         if (digits == null)
             return null;
