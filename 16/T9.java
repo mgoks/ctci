@@ -1,9 +1,11 @@
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
 public class T9 {
+    private static final char END_OF_WORD = '*';
+
     private static final char[][] KEYBOARD = {
         {},
         {},
@@ -18,36 +20,77 @@ public class T9 {
     };
 
     public static void main(String[] args) {
-        Set<String> validWords = new HashSet<>();
-        for (int i = 1; i < args.length; i++) {
-            validWords.add(args[i]);
-        }
-        T9 t9 = new T9();
-        System.out.println(t9.getWords(args[0], validWords));
+
     }
 
-    // O(4^n) time and  space complexity
-    List<String> getWords(String digits, Set<String> validWords) {
+    // O(4^n) time and space complexity
+    List<String> getAllMatchingWords(String digits, TrieNode root) {
         if (digits == null)
             return null;
 
-        List<String> matchingWords = new ArrayList<>();
-        char[] chars = new char[digits.length()];
-        int index = 0; // current index
-        addAllMatchingWords(matchingWords, digits, chars, index, validWords);
-        return matchingWords;
+        // convert digits to int[]
+        int[] digits_ = new int[digits.length()];
+        for (int i = 0; i < digits.length(); i++) {
+            digits_[i] = digits.charAt(i) - '0';
+        }
+
+        List<String> wordList = new ArrayList<>();
+        char[] chars = new char[digits.length()];   // valid characters so far
+        addAllMatchingWords(wordList, root, digits_, chars, -1);
+        return wordList;
     }
 
-    void addAllMatchingWords(List<String> wordList, String digits, char[] chars, int index, Set<String> validWords) {
-        if (index == digits.length()) {
-            String candidate = new String(chars);
-            if (validWords.contains(candidate)) wordList.add(candidate);
+    private void addAllMatchingWords(List<String> wordList, TrieNode node, int[] digits, char[] chars, int index) {
+        if (node == null)
             return;
+
+        // went through all digits, check if we are at a word terminating node
+        if (index == digits.length && node.character == END_OF_WORD) {
+            wordList.add(new String(chars));
+        } else {    // keep building the word and looking for it in the trie
+            for (char c : getT9Chars(digits[index])) {
+                chars[index] = c;
+                addAllMatchingWords(wordList, node.getChild(c), digits, chars, index + 1);
+            }
         }
-        int digit = digits.charAt(index) - '0';
-        for (char c : KEYBOARD[digit]) {
-            chars[index] = c;
-            addAllMatchingWords(wordList, digits, chars, index + 1, validWords);
+    }
+
+    private char[] getT9Chars(int digit) {
+        return KEYBOARD[digit];
+    }
+
+    private void addWord(TrieNode node, String word, int index) {
+        if (node == null || word == null) 
+            return;
+        if (index == word.length()) {
+            node.addChild(END_OF_WORD);
+        } else {
+            char c = word.charAt(index);
+            if (!node.hasChild(c)) node.addChild(c);
+            addWord(node.getChild(c), word, index + 1);
+        }
+    }
+
+
+    class TrieNode {
+        char character; // redundant?
+        Map<Character, TrieNode> children;
+
+        public TrieNode(char c) {
+            character = c;
+            children = new HashMap<>();
+        }
+
+        boolean hasChild(char c) {
+            return children.get(c) != null;
+        }
+
+        void addChild(char c) {
+            children.put(c, new TrieNode(c));
+        }
+
+        TrieNode getChild(char c) {
+            return children.get(c);
         }
     }
 }
