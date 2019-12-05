@@ -21,15 +21,16 @@ public class T9 {
 
     public static void main(String[] args) {
         String digits = args[0];
-        TrieNode trieRoot = new TrieNode('\0');
+        TrieNode trieRoot = new TrieNode('0');
         T9 wordFinder = new T9();
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 1; i < args.length; i++) {
             wordFinder.addWord(trieRoot, args[i], 0);
         }
         System.out.println(wordFinder.getAllMatchingWords(digits, trieRoot));
     }
 
-    // O(4^n) time and space complexity
+    /* O(4^n) time and space complexity in the worst case, but this algorithm
+     * stops exploring braches as soon as a digit fails. */
     List<String> getAllMatchingWords(String digits, TrieNode root) {
         if (digits == null)
             return null;
@@ -49,12 +50,10 @@ public class T9 {
     private void addAllMatchingWords(List<String> wordList, TrieNode node, int[] digits, char[] chars, int index) {
         if (node == null)
             return;
-
-        // went through all digits, check if we are at a word terminating node
-        if (index == digits.length && node.character == END_OF_WORD) {
-            wordList.add(new String(chars));
-        } else if (index == digits.length) {    // and not end of word
-            return;
+        
+        if (index == digits.length) {       // went through all digits
+            if (node.hasChild(END_OF_WORD)) // check if we traverse a valid word
+                wordList.add(new String(chars));
         } else {    // keep building the word and looking for it in the trie
             for (char c : getT9Chars(digits[index])) {
                 chars[index] = c;
@@ -99,6 +98,12 @@ public class T9 {
 
         TrieNode getChild(char c) {
             return children.get(c);
+        }
+
+        public String toString() {
+            String s = "node.char: " + character + "\n";
+            s += "node.children: " + children.toString() + "\n";
+            return s;
         }
     }
 }
