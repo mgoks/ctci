@@ -50,9 +50,8 @@ public class T9 {
     private void addAllMatchingWords(List<String> wordList, TrieNode node, int[] digits, char[] chars, int index) {
         if (node == null)
             return;
-        
         if (index == digits.length) {       // went through all digits
-            if (node.hasChild(END_OF_WORD)) // check if we traverse a valid word
+            if (node.hasChild(END_OF_WORD)) // check if we just traversed a valid word
                 wordList.add(new String(chars));
         } else {    // keep building the word and looking for it in the trie
             for (char c : getT9Chars(digits[index])) {
