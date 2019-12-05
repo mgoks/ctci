@@ -20,7 +20,13 @@ public class T9 {
     };
 
     public static void main(String[] args) {
-
+        String digits = args[0];
+        TrieNode trieRoot = new TrieNode('\0');
+        T9 wordFinder = new T9();
+        for (int i = 0; i < args.length; i++) {
+            wordFinder.addWord(trieRoot, args[i], 0);
+        }
+        System.out.println(wordFinder.getAllMatchingWords(digits, trieRoot));
     }
 
     // O(4^n) time and space complexity
@@ -36,7 +42,7 @@ public class T9 {
 
         List<String> wordList = new ArrayList<>();
         char[] chars = new char[digits.length()];   // valid characters so far
-        addAllMatchingWords(wordList, root, digits_, chars, -1);
+        addAllMatchingWords(wordList, root, digits_, chars, 0);
         return wordList;
     }
 
@@ -47,6 +53,8 @@ public class T9 {
         // went through all digits, check if we are at a word terminating node
         if (index == digits.length && node.character == END_OF_WORD) {
             wordList.add(new String(chars));
+        } else if (index == digits.length) {    // and not end of word
+            return;
         } else {    // keep building the word and looking for it in the trie
             for (char c : getT9Chars(digits[index])) {
                 chars[index] = c;
@@ -72,7 +80,7 @@ public class T9 {
     }
 
 
-    class TrieNode {
+    static class TrieNode {
         char character; // redundant?
         Map<Character, TrieNode> children;
 
