@@ -2,7 +2,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class T9Optimal {
     private static final char[] DIGITS = {
@@ -53,7 +52,6 @@ public class T9Optimal {
     private String t9Digitize(String word) {
         if (word == null)
             return null;
-
         char[] digits = new char[word.length()];
         for (int i = 0; i < word.length(); i++) {
             digits[i] = t9Digitize(word.charAt(i));
