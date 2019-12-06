@@ -22,8 +22,10 @@ public class T9Optimal {
         String digits = args[0];
         args[0] = null;
 
-        /* takes O(nm) for caching and constant time for each 
-         * call to getMatchingWords */
+        /* takes O(nm) time for caching and O(m) for each call to getMatchingWords 
+         * in the length of the digit sequence beacuse of the hash table 
+         * look up (need to convert the String) 
+         * O(nm) space because of the hash table*/
         T9Optimal t9 = new T9Optimal();
         t9.cacheWords(args);
         System.out.println(t9.getMatchingWords(digits));
@@ -45,6 +47,7 @@ public class T9Optimal {
         }
     }
 
+    // O(m) time
     List<String> getMatchingWords(String digits) {
         return matchingWords.get(digits);
     }
