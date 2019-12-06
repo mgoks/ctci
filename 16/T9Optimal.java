@@ -16,27 +16,29 @@ public class T9Optimal {
         '9', '9', '9', '9'
     };
 
+    // digit sequence to valid words mappings
     private final Map<String, List<String>> matchingWords = new HashMap<>();
 
     public static void main(String[] args) {
         String digits = args[0];
-        List<String> validWords = Arrays.asList(args);
-        validWords.remove(digits);
+        args[0] = null;
 
-        T9Optimal t9 = new T9Optimal();
         /* takes O(nm) for caching and constant time for each 
-         * call getMatchingWords */
-        t9.cacheWords(validWords);
+         * call to getMatchingWords */
+        T9Optimal t9 = new T9Optimal();
+        t9.cacheWords(args);
         System.out.println(t9.getMatchingWords(digits));
     }
 
     // O(n*m) time in the length of List and the length of String
-    void cacheWords(List<String> validWords) {
+    void cacheWords(String[] validWords) {
         if (validWords == null)
             return;
 
         /* for each valid word, compute its digit form and put it in the map */
         for (String word : validWords) {
+            if (word == null)
+                continue;
             String digits = t9Digitize(word);
             if (!matchingWords.containsKey(digits))
                 matchingWords.put(digits, new ArrayList<>());
