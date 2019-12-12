@@ -1,92 +1,111 @@
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashSet;
+import java.lang.StringBuilder;
 
 public class LangtonsAnt {
     public static void main(String[] args) {
         LangtonsAnt ant = new LangtonsAnt();
-        ant.printMoves(Integer.parseInt(args[0]));
+        ant.printMoves(Integer.parseInt(args[0]));  // number of steps
     }
 
+    /* O(k) time
+     * Space complexity is more difficult to determine. Seems like it is a function
+     * of k which grows faster than log(k) but slower than k. */
     void printMoves(int k) {
-        if (k < 0) {
-            System.err.println("number of moves can't be negative.");
+        Board board = new Board();
+        Ant ant = new Ant();
+        while (k-- > 0) {
+            boolean white = board.isWhite(ant.position);
+            board.flipSquare(ant.position);
+            ant.turn(white);
+            ant.moveForward();
+            board.ensureFit(ant.position);
         }
-        
-        boolean[][] grid = createRandomGrid(2*k);
-        
-        System.out.println("original grid");
-        printGrid(grid);
-        System.out.println("");
-        
-        int[] position = {grid.length/2, grid.length/2};
-        int[] direction = {0, 1};   // facing right
-        simulateMoves(k, grid, position, direction);
-        
-        System.out.println("after " + k + " moves");
-        printGrid(grid);
-        System.out.println("");
+        System.out.println(board);
+        // System.out.format("number of whites is %d%n", board.whites.size());
     }
 
-    /* Creates new boolean 2d-array representing the grid
-     * grid[i][j] == true indicates that the square at row i column j
-     * is white; else, the square is black */
-    boolean[][] createRandomGrid(int size) {
-        if (size < 0) 
-            return null;
-        boolean[][] grid = new boolean[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                grid[i][j] = ThreadLocalRandom.current().nextBoolean();
+    
+    class Board {
+        HashSet<Position> whites = new HashSet<>();
+        Position minPosition = new Position(0, 0);
+        Position maxPosition = new Position(0, 0);
+
+        boolean isWhite(Position p) {
+            return whites.contains(p);
+        }
+
+        void flipSquare(Position p) {
+            if (isWhite(p)) whites.remove(p);
+            else whites.add(p);
+        }
+
+        void ensureFit(Position p) {
+            if (p.row < minPosition.row || p.column < minPosition.column) {
+                minPosition = new Position(Math.min(p.row, minPosition.row), 
+                                           Math.min(p.column, minPosition.column));
+            }
+            if (p.row > maxPosition.row || p.column > maxPosition.column) {
+                maxPosition = new Position(Math.max(p.row, maxPosition.row),
+                                           Math.max(p.column, maxPosition.column));
             }
         }
-        return grid;
-    }
 
-    void simulateMoves(int movesLeft, boolean[][] grid, int[] position, int[] direction) {
-        if (movesLeft == 0)
-            return;
-        int row = position[0];
-        int col = position[1];
-        boolean turnRight = grid[row][col]; // turn right if square is white
-        grid[row][col] = !grid[row][col];   // flip color
-        turn(direction, turnRight);
-
-        // move forward
-        position[0] += direction[0];
-        position[1] += direction[1];
-
-        simulateMoves(movesLeft-1, grid, position, direction);
-    }
-
-    void turn(int[] direction, boolean turnRight) {
-        // swap direction[0] and direction[1]
-        int temp = direction[0];
-        direction[0] = direction[1];
-        direction[1] = temp;
-
-        /* if turning right, change sign of direction[1];
-         * else, change sign of direction[0] */
-        direction[turnRight? 1 : 0] *= -1;
-    }
-
-    void printGrid(boolean[][] grid) {
-        System.out.print("    ");
-        for (int i = 0; i < grid.length; i++) {
-            System.out.print(i + " ");
-        }
-        System.out.println("");
-
-        System.out.print("    ");
-        for (int i = 0; i < grid.length; i++) {
-            System.out.print("--");
-        }
-        System.out.println("");
-        
-        for (int i = 0; i < grid.length; i++) {
-            System.out.print(i + " | ");
-            for (boolean white : grid[i]) {
-                System.out.print(white? "O " : "# ");
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (int row = minPosition.row; row <= maxPosition.row; row++) {
+                for (int col = minPosition.column; col <= maxPosition.column; col++) {
+                    Position p = new Position(row, col);
+                    sb.append(isWhite(p)? " " : "\u2588");
+                }
+                sb.append("\n");
             }
-            System.out.println("");
+            return sb.toString();
         }
     }
+
+
+    class Ant {
+        Position position = new Position(0, 0);
+        Position orientation = new Position(0, 1);  // start facing right
+
+        void turn(boolean turnRight) {
+            if (turnRight) 
+                orientation = new Position(orientation.column, -orientation.row);
+            else 
+                orientation = new Position(-orientation.column, orientation.row);
+        }
+
+        void moveForward() {
+            position = new Position(position.row + orientation.row, position.column + orientation.column);
+        }
+    }
+
+
+    class Position {    // immutable
+        final int row;
+        final int column;
+
+        public Position(int row, int col) {
+            this.row = row;
+            this.column = col;
+        }
+
+        /* Need to override the 2 methods below for HashSet to work 
+         * properly.    */
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof Position) {
+                Position other = (Position) o;
+                return other.row == row && other.column == column;
+            } 
+            return false;
+        }
+
+        @Override
+        public int hashCode(){
+            return (row * 31) ^ column;
+        }
+    }
+
 }
