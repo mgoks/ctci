@@ -16,37 +16,28 @@ public class AddendFinder {
         System.out.println("pairs: " + addendFinder.findAddends(array, sum));
     }
 
-    // O(n) time and space (no sorting needed)
+    // O(n) time and space 
     // does not double-count an element, i.e. an integer can be part of one pair only
     ArrayList<Pair> findAddends(int[] array, int sum) {
         if (array == null || array.length < 2)
             return null;
         ArrayList<Pair> pairs = new ArrayList<>();
-        HashMap<Integer, Integer> counts = countElements(array);
+        HashMap<Integer, Integer> counts = new HashMap<>();
         for (int addend1 : array) {
             int addend2 = sum - addend1;
-            if (addend1 == addend2 && counts.get(addend1) > 1 ||
-                // make sure both addends are not assigned to a pair yet
-                addend1 != addend2 && counts.getOrDefault(addend1, 0) > 0 && counts.getOrDefault(addend2, 0) > 0) {
+            if (counts.getOrDefault(addend2, 0) > 0) {
                 pairs.add(new Pair(addend1, addend2));
-                decrementCount(counts, addend1);
-                decrementCount(counts, addend2);
+                incrementCount(counts, addend2, -1);
+            } else {
+                incrementCount(counts, addend1, 1);
             }
         }
         return pairs;
     }
 
-    HashMap<Integer, Integer> countElements(int[] array) {
-        HashMap<Integer, Integer> map = new HashMap<>();
-        for (int i : array) {
-            if (!map.containsKey(i)) map.put(i, 1);
-            else map.replace(i, map.get(i) + 1);
-        }
-        return map;
-    }
-
-    void decrementCount(HashMap<Integer, Integer> counts, int element) {
-        counts.replace(element, counts.get(element) - 1);
+    void incrementCount(HashMap<Integer, Integer> counts, int element, int delta) {
+        int previousCount = counts.getOrDefault(element, 0);
+        counts.put(element, previousCount + delta);
     }
 
 
