@@ -14,52 +14,40 @@ public class Calculator {
     public double calculate(String expression) {
         if (expression == null)
             return Double.NaN;
-        LinkedListNode head = tokenize(expression);
-        LinkedListNode node = head;
+        LinkedListNode tokens = tokenize(expression);
+        doOperations(tokens, STAR, SLASH);    // do multiplications and divisions first
+        doOperations(tokens, PLUS, MINUS);    // now do additions and subtractions
+        return tokens.value instanceof Double? (Double) tokens.value : Double.NaN;
+    }
 
-        // do multiplications and divisions first
+    private void doOperations(LinkedListNode node, char sign1, char sign2) {
         while (node != null && node.next != null && node.next.next != null) {
             Object token = node.next.value;
             if (token instanceof Character) {
                 char operator = (Character) token;
-                if (operator == STAR || operator == SLASH) {
-                    double term1 = 0.0;
-                    double term2 = 0.0;
-                    if (node.value instanceof Double)
-                        term1 = (Double) node.value;
-                    if (node.next.next.value instanceof Double)
-                        term2 = (Double) node.next.next.value;
-                    double result = operator == STAR? term1 * term2 : term1 / term2;
+                if (operator == sign1 || operator == sign2) {
+                    double term1 = (Double) node.value;
+                    double term2 = (Double) node.next.next.value;
+                    double result = 0.0;
+                    switch (operator) {
+                        case PLUS: result = term1 + term2;
+                            break;
+                        case MINUS: result = term1 - term2;
+                            break;
+                        case STAR: result = term1 * term2;
+                            break;
+                        case SLASH: result = term1 / term2;
+                            break;
+                        default: System.err.println("Undefined operator: " + operator);
+                            return;
+                    }
                     node.value = result;
                     node.next = node.next.next.next;
-                }
-            } else {
-                node = node.next;
+                    continue;
+                } 
             }
+            node = node.next; 
         }
-
-        // now do additions and subtractions
-        while (node != null && node.next != null && node.next.next != null) {
-            Object token = node.next.value;
-            if (token instanceof Character) {
-                char operator = (Character) token;
-                if (operator == PLUS || operator == MINUS) {
-                    double term1 = 0.0;
-                    double term2 = 0.0;
-                    if (node.value instanceof Double)
-                        term1 = (Double) node.value;
-                    if (node.next.next.value instanceof Double)
-                        term2 = (Double) node.next.next.value;
-                    double result = operator == PLUS? term1 + term2 : term1 - term2;
-                    node.value = result;
-                    node.next = node.next.next.next;
-                }
-            } else {
-                node = node.next;
-            }
-        }
-
-        return node.value instanceof Double? (Double) node.value : Double.NaN;
     }
 
     private LinkedListNode tokenize(String expression) {
@@ -78,6 +66,7 @@ public class Calculator {
                 node = node.next.next;
             }
         }
+        node.value = Double.parseDouble(sb.toString());
         return head;
     }
 
@@ -92,6 +81,16 @@ public class Calculator {
 
         LinkedListNode(Object v) {
             value = v;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.valueOf(value) + " ");
+            if (next == null)
+                return sb.toString();
+            sb.append(next.toString());
+            return sb.toString();
         }
     }
 }
