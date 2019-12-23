@@ -1,36 +1,51 @@
-import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Arrays;
 
 public class DeckShuffler {
     public static void main(String[] args) {
         DeckShuffler shuffler = new DeckShuffler();
         ThreadLocalRandom randomNumberGenerator = ThreadLocalRandom.current();
 
-        ArrayList<Card> deck = shuffler.createDeck();
-        System.out.println("original deck: " + deck);
+        Card[] deck = shuffler.createDeck();
+        System.out.println("original deck: " + Arrays.toString(deck));
 
-        ArrayList<Card> shuffled = shuffler.shuffleDeck(deck, randomNumberGenerator);
-        System.out.println("shuffled deck: " + shuffled);
+        shuffler.shuffleDeck(deck);
+        System.out.println("shuffled deck: " + Arrays.toString(deck));
+
+        Card[] deck2 = shuffler.createDeck();
+        shuffler.shuffleDeckIterative(deck2);
+        System.out.println("iteratively  : " + Arrays.toString(deck2));
     }
 
-    // contant time and space (upperbounded by 52)
-    ArrayList<Card> shuffleDeck(ArrayList<Card> deck, ThreadLocalRandom randomNumberGenerator) {
-        ArrayList<Card> shuffled = new ArrayList<>();
-        shuffleDeck(deck, shuffled, randomNumberGenerator);
-        return shuffled;
+    // shuffle deck in-place recursively
+    void shuffleDeck(Card[] deck) {
+        shuffleDeck(deck, deck.length - 1);
     }
 
-    private void shuffleDeck(ArrayList<Card> orig, ArrayList<Card> shuffled, ThreadLocalRandom numGenerator) {
-        if (shuffled.size() == 52)
+    private void shuffleDeck(Card[] deck, int index) {
+        if (index <= 0)
             return;
-        int i = numGenerator.nextInt(0, orig.size());
-        Card card = orig.remove(i);
-        shuffled.add(card);
-        shuffleDeck(orig, shuffled, numGenerator);
+        shuffleDeck(deck, index-1);
+        int i = ThreadLocalRandom.current().nextInt(0, index + 1);    // upper bound exlusive
+        swap(i, index, deck);
     }
 
-    private ArrayList<Card> createDeck() {
-        ArrayList<Card> deck = new ArrayList<>();
+    void shuffleDeckIterative(Card[] deck) {
+        for (int i = 0; i < deck.length; i++) {
+            int j = ThreadLocalRandom.current().nextInt(0, i+1);
+            swap(j, i, deck);
+        }
+    }
+
+    private void swap(int index1, int index2, Object[] array) {
+        Object temp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = temp;
+    }
+
+    private Card[] createDeck() {
+        Card[] deck = new Card[52];
+        int index = 0;
         for (String suit : Card.suits) {
             for (int rank = 1; rank < 14; rank++) {
                 Card card;
@@ -44,7 +59,7 @@ public class DeckShuffler {
                     card = new Card(suit, "K");
                 else 
                     card = new Card(suit, String.valueOf(rank));
-                deck.add(card);
+                deck[index++] = card;;
             }
         }
         return deck;
