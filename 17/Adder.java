@@ -3,31 +3,30 @@ public class Adder {
         int a = Integer.parseInt(args[0]);
         int b = Integer.parseInt(args[1]);
         Adder adder = new Adder();
-        System.out.println(adder.addNonNegative(a, b));
+        System.out.println(adder.add(a, b));
+        System.out.println(adder.addIterative(a, b));
 
     }
 
-    /* O(1) time since while loop will execute 31 times at most 
-     * assuming input is non-negative and carry can be non-zero
-     * for a limited number of times which makes space complexity
-     * upper bounded by constanct factor as well. */
-    int addNonNegative(int a, int b) {
-        int res = 0;
-        int mask = 1; 
-        int carry = 0;
-        while (a > 0 || b > 0) {
-            int a_ = a & 1;   // least significant bit of a
-            int b_ = b & 1;
-            if ((a_ & b_) == 1)
-                carry |= (mask << 1);
-            if ((a_ ^ b_) == 1)
-                res |= mask;
-            a >>= 1;
-            b >>= 1;
-            mask <<= 1;
+    /* O(1) time and space the method will not recurse more
+     * than 32 times. */
+    int add(int a, int b) {
+        if (b == 0)
+            return a;
+        int sum = a ^ b;    // sum without carrying
+        int carry = (a & b) << 1;
+        return add(sum, carry);
+    }
+
+    /* O(1) time and space since the loop will never execute
+     * more than 32 times. */
+    int addIterative(int a, int b) {
+        while (b != 0) {
+            int sum = a ^ b;    // sum without carrying
+            int carry = (a & b) << 1;
+            a = sum;
+            b = carry;
         }
-        if (carry == 0)
-            return res;
-        return addNonNegative(carry, res);
+        return a;
     }
 }
