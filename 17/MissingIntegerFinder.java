@@ -1,10 +1,50 @@
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MissingIntegerFinder {
+    int findMissingInteger(BitInteger[] a) {
+        if (a == null)
+            return -1;
+        return findMissingInteger(Arrays.asList(a), 0, 0);
+    }
+
+    /* O(n) because in the first call it will go over n objects, 
+     * in the second call n/2, in the third n/4, etc. */
+    private int findMissingInteger(List<BitInteger> a, int missingInt, int j) {
+        if (a.isEmpty()) {
+            return missingInt;
+        }
+        ArrayList<BitInteger> zeroes = new ArrayList<>();
+        ArrayList<BitInteger> ones   = new ArrayList<>();
+        for (BitInteger bitInteger : a) {
+            if (bitInteger.fetchBit(j) == 0)
+                zeroes.add(bitInteger);
+            else 
+                ones.add(bitInteger);
+        }
+        if (zeroes.size() <= ones.size())   // j^th bit of missing integer is 0
+            return findMissingInteger(zeroes, missingInt, j+1); // eliminate all 1s
+        else 
+            return findMissingInteger(ones, missingInt | (1<<j), j+1);
+    }
+
+
+    private void shuffle(BitInteger[] a) {
+        if (a == null)
+            return;
+        for (int i = 0; i < a.length; i++) {
+            int j = ThreadLocalRandom.current().nextInt(0, i+1);
+            BitInteger temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+        }
+    }
+
     public static void main(String[] args) {
         MissingIntegerFinder finder = new MissingIntegerFinder();
-        int n = ThreadLocalRandom.current().nextInt(0, 1000000);
+        int n = Integer.parseInt(args[0]);
         int missingInt = ThreadLocalRandom.current().nextInt(0, n+1);
         System.out.println("Missing integer is " + missingInt);
         BitInteger[] a = new BitInteger[n];
@@ -17,37 +57,7 @@ public class MissingIntegerFinder {
             a[i - offset] = new BitInteger(i);
         }
         finder.shuffle(a);
-        // System.out.println("A = " + Arrays.toString(a));
         System.out.println("findMissingInteger returns " + finder.findMissingInteger(a));
-    }
-
-    // all a[i] is non-negative
-    int findMissingInteger(BitInteger[] a) {
-        if (a == null)
-            return -1;
-        int n = a.length;
-        int a_xor = 0;  // all a[i] XORed
-        int n_xor = 0;  // all integers from 0 to n XORed
-        for (int i = 0; i <= n; i++)
-            n_xor ^= i;
-        for (int j = 0; j < Integer.SIZE; j++) {
-            int bit = 0;
-            for (BitInteger bitInteger : a)
-                bit ^= bitInteger.fetchBit(j);  // can't access a[i] directly according to problem description
-            a_xor |= (bit << j); // set jth bit of a_xor to bit
-        }
-        return a_xor ^ n_xor;
-    }
-
-    private void shuffle(BitInteger[] a) {
-        if (a == null)
-            return;
-        for (int i = 0; i < a.length; i++) {
-            int j = ThreadLocalRandom.current().nextInt(0, i+1);
-            BitInteger temp = a[i];
-            a[i] = a[j];
-            a[j] = temp;
-        }
     }
 
 
