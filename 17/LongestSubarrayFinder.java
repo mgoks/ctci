@@ -1,40 +1,54 @@
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashMap;
 
 /* CTCI 17.5
  * Given an array of letters and digits, finds the longest subarray that consists of equal
  * number of of letters and digits. */
 public class LongestSubarrayFinder {
 
-    // returns the start and end indices of such subarray
-    int[] findLongestSubarray(char[] chars) {
-        if (chars == null || chars.length == 0)
+    /* returns the longest subarray with equal number of digits and letters 
+     * O(n) time and space */
+    char[] findLongestSubarray(char[] array) {
+        if (array == null)
             return null;
-        
-        int bestCount = 0;
-        int bestStart = 0;
-        int bestEnd = 0;
-        for (int start = 0; start < chars.length; start++) {
-            for (int end = start; end < chars.length; end++) {
-                int digitCount = 0;
-                int letterCount = 0;
-                for (int i = start; i <= end; i++) {
-                    if (isDigit(chars[i])) digitCount++;
-                    else letterCount++;
-                    if (digitCount == letterCount && digitCount > bestCount) {
-                        bestCount = digitCount;
-                        bestStart = start;
-                        bestEnd = end;
-                    }
+        int[] diffs = getDiffs(array);
+
+        // find the indices of equals diff values furthest apart from each other
+        int maxLength = 0;  // max subarray length
+        int bestStart = 0;  // start index of longest such subarray
+        HashMap<Integer, Integer> indices = new HashMap<>();    // diff to left-most index mappings
+        indices.put(0, -1);
+        for (int end = 0; end < diffs.length; end++) {
+            int diff = diffs[end];
+            if (indices.containsKey(diff)) {
+                int firstSeenIndex = indices.get(diff);
+                int start = firstSeenIndex + 1;  // subarray starts right after firstSeenIndex
+                int length = end - start + 1;
+                if (length > maxLength) {
+                    maxLength = length;
+                    bestStart = start;
                 }
+            } else {
+                indices.put(diff, end);
             }
         }
-        int[] indices = {bestStart, bestEnd};
-        return indices;
+        return Arrays.copyOfRange(array, bestStart, bestStart + maxLength);
     }
 
-    private boolean isDigit(char c) {
-        return '0' <= c && c <= '9';
+    // characters that are not digits or letters are omitted
+    private int[] getDiffs(char[] array) {
+        int[] table = new int[array.length];
+        int digits = 0;
+        int letters = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (Character.isDigit(array[i]))
+                digits++;
+            else if (Character.isLetter(array[i]))
+                letters++;
+            table[i] = digits - letters;
+        }
+        return table;
     }
 
 
@@ -42,13 +56,11 @@ public class LongestSubarrayFinder {
         int length = Integer.parseInt(args[0]);
         char[] chars = new char[length];
         String charSet = "abcdefghijklmnopqrstuvwxyz0123456789";
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++) 
             chars[i] = charSet.charAt(ThreadLocalRandom.current().nextInt(0, charSet.length()));
-        }
         System.out.println("original array  : " + Arrays.toString(chars));
         LongestSubarrayFinder subarrayFinder = new LongestSubarrayFinder();
-        int[] subarrayIndices = subarrayFinder.findLongestSubarray(chars);
-        System.out.println("Longest subarray: " 
-            + Arrays.toString(Arrays.copyOfRange(chars, subarrayIndices[0], subarrayIndices[1]+1)));
+        char[] sub = subarrayFinder.findLongestSubarray(chars);
+        System.out.println("Longest subarray: " + Arrays.toString(sub));
     }
 }
