@@ -39,14 +39,13 @@ public class LongestSubarrayFinder {
     // characters that are not digits or letters are omitted
     private int[] getDiffs(char[] array) {
         int[] table = new int[array.length];
-        int digits = 0;
-        int letters = 0;
+        int diff = 0;
         for (int i = 0; i < array.length; i++) {
             if (Character.isDigit(array[i]))
-                digits++;
+                diff++;
             else if (Character.isLetter(array[i]))
-                letters++;
-            table[i] = digits - letters;
+                diff--;
+            table[i] = diff;
         }
         return table;
     }
